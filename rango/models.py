@@ -1,13 +1,22 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django.template.defaultfilters import slugify
 
+#category class
 class Category(models.Model):
     name = models.CharField(max_length=128, unique=True)
-    views =models.IntegerField(default=0)
-    likes =models.IntegerField(default=0)
+    views = models.IntegerField(default=0)
+    likes = models.IntegerField(default=0)
+    slug = models.SlugField(unique=True)
 
-    def __unicode__(self):  #For Python 2, use __str__ on Python 3
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Category, self).save(*args, **kwargs)
+
+    def __unicode__(self):
         return self.name
 
+#page class
 class Page(models.Model):
     category = models.ForeignKey(Category)
     title = models.CharField(max_length=128)
@@ -16,3 +25,13 @@ class Page(models.Model):
 
     def __unicode__(self):      #For Python 2, use __str__ on Python 3
         return self.title
+
+
+#user profile class
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)
+    website = models.URLField(blank=True)
+    picture = models.ImageField(upload_to='profile_images', blank=True)
+
+    def __unicode__(self):
+        return self.user.username
